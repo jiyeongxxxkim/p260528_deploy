@@ -20,13 +20,22 @@ class DevInitData {
     fun devApplicationRunner(): ApplicationRunner {
         return ApplicationRunner {
             genApiJsonFile("http://localhost:8080/v3/api-docs/apiV1", "apiV1.json")
-            runCmd(
-                listOf(
-                    "cmd.exe",
-                    "/c",
-                    "npx --package typescript --package openapi-typescript --package punycode openapi-typescript apiV1.json -o ../frontend/src/lib/backend/apiV1/schema.d.ts"
-                )
-            );
+
+            //  npx 실행 명령어 본문
+            val npxCommand = "npx --package typescript --package openapi-typescript --package punycode openapi-typescript apiV1.json -o ../frontend/src/lib/backend/apiV1/schema.d.ts --legacy-peer-deps"
+
+            // 현재 내 컴퓨터 OS 확인 (윈도우인지 맥인지)
+            val os = System.getProperty("os.name").lowercase()
+
+            val fullCommand = if (os.contains("win")) {
+                // 윈도우 환경인 경우
+                listOf("cmd.exe", "/c", npxCommand)
+            } else {
+                // Mac 또는 리눅스 환경인 경우
+                listOf("sh", "-c", npxCommand)
+            }
+
+            runCmd(fullCommand)
         };
     }
 
